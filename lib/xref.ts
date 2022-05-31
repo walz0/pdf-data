@@ -30,3 +30,5 @@ const getTable = (buffer: Buffer): XREFTable => {
     }
     return new XREFTable(lines)
 }
+
+export { getTable }
