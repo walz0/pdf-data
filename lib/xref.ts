@@ -1,24 +1,30 @@
+const XREF = Buffer.from("xref\n", "utf8")
+const TRAILER = Buffer.from("trailer\n", "utf8")
+
 class XREFTable {
-    entries: Buffer[]
-    constructor(entries: Buffer[]) {
+    entries: Reference[]
+    constructor(entries: Reference[]) {
         this.entries = entries
     }
 }
 
-class XREFObject {
-
+class Reference { 
+    data: Buffer
+    constructor(data: Buffer) {
+        this.data = data
+    }
 }
 
-
-const getTable = (buffer: Buffer): XREFTable => {
-    let start = buffer.indexOf(xref) + 5 // start of xref table plus offset
+const getTable = function (buffer: Buffer): XREFTable {
+    let start = buffer.indexOf(XREF) + XREF.length // start of xref table
+    console.debug("xref table start", start)
     let lines: Buffer[] = []
     for (var i = start; i < buffer.length; i++) {
         // detect end of xref table
-        if (i >= trailer.length) {
-            let slice: Buffer = buffer.slice(i - trailer.length, i)
-            if (Buffer.compare(slice, trailer) == 0) {
-                console.log("fuck")
+        if (i >= TRAILER.length) {
+            let slice: Buffer = buffer.slice(i - TRAILER.length, i)
+            if (Buffer.compare(slice, TRAILER) == 0) {
+                console.log("xref table end", i)
                 break
             }
         }
@@ -28,7 +34,7 @@ const getTable = (buffer: Buffer): XREFTable => {
             start = i
         }
     }
-    return new XREFTable(lines)
+    return new XREFTable([])
 }
 
-export { getTable }
+export { getTable, XREFTable, Reference }
