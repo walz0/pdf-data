@@ -1,0 +1,47 @@
+COS - Carousel Object System
+
+A simple PDF contains 4 parts:
+    - header:
+        %PDF-1.7
+    - body:
+        1 0 obj
+        ...
+        endobj
+        2 0 obj
+        ...
+        endobj
+        ...
+    - xref table (cross reference table):
+        xref
+        0 6
+        0000000000 65535 f 
+        0000000010 00000 n 
+        0000000079 00000 n 
+        0000000173 00000 n 
+        0000000301 00000 n 
+        0000000380 00000 n 
+    - trailer:
+        trailer
+        <<
+        /Size 6
+        /Root 1 0 R
+        >>
+        startxref
+        492
+        %%EOF
+
+Object Types:
+    - Indirect Object
+    - Number
+    - Indirect Reference
+    - Name
+    - Dictionary
+    - Array
+    - String Object
+    - Stream
+    - Boolean
+    - Null Object
+
+References:
+https://blog.idrsolutions.com/understanding-the-pdf-file-format/#helloworld
+https://web.archive.org/web/20141010035745/http://gnupdf.org/Introduction_to_PDF
