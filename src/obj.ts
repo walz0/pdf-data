@@ -1,13 +1,10 @@
-class obj { }
-
-class obj_IndirectRef {
-    objNumber: Number; // Object Number (positive integer)
-    revNumber: Number; // Revision / Generation Number (non-negative integer)
-    ref: obj; // Object Reference
-    constructor (objNumber: Number, revNumber: Number, ref: Object) {
+class obj {
+    public objNumber: number; // Object Number (positive integer)
+    public revNumber: number; // Revision / Generation Number (non-negative integer)
+    public ref: obj | null = null; // Object Reference
+    constructor (objNumber: number, revNumber: number) {
         this.objNumber = objNumber;
         this.revNumber = revNumber;
-        this.ref = ref;
     }
 }
 
@@ -71,29 +68,42 @@ class obj_Boolean {}
 class obj_NullObj {}
 
 /**
- * Returns all Objects in the given file
+ * Returns all objects in the PDF file
  */
 const getAllObjects = (data: Buffer): obj[] => {
-    // Find start positions of all obj tags
-    const pattern: Buffer = Buffer.from("obj\n");
-    let temp: Buffer = Buffer.alloc(pattern.byteLength);
-    let r = pattern.byteLength;
-    let pos: Number[] = [];
+    let output: obj[] = []; // Return array
+    const p_obj: Buffer = Buffer.from(" obj\n");
+    const p_endobj: Buffer = Buffer.from("endobj\n");
+    // Sliding window for pattern matching
+    let temp: Buffer = Buffer.alloc(p_endobj.byteLength);
+    let r = temp.byteLength; // Right pointer
+    let startPos: number[] = [];
+    let endPos: number[] = [];
     for (var l = 0; r < data.byteLength + 1; l++) {
-        // If 'obj' pattern matched
-        if (pattern.equals(temp)) {
-            pos.push(l);
-        }
+        if (p_obj.compare(temp, 0, p_obj.byteLength) === 0)
+            startPos.push(l);
+        if (p_endobj.compare(temp, 0, p_endobj.byteLength) === 0)
+            endPos.push(l);
+        // Copy current window into temp
         data.copy(temp, 0, l, r);
         r++;
     }
+
+    if (startPos.length !== endPos.length)
+        throw new Error("Totals for obj and endobj tags do not match");
+
+    const objCount = startPos.length;
+    for (var i = 0; i < objCount; i++) {
+        const objNumber = parseInt(String.fromCharCode(data[startPos[i] - 4]));
+        const revNumber = parseInt(String.fromCharCode(data[startPos[i] - 2]));
+        output.push(new obj(objNumber, revNumber));
+    }
     
-    return [new obj];
+    return output;
 }
 
 export { 
     obj,
-    obj_IndirectRef,
     obj_Name,
     obj_Dictionary,
     obj_StringObj,
