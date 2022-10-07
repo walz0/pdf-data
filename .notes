@@ -1,5 +1,7 @@
 COS - Carousel Object System
 
+EOL - CR + LF = 0x1310
+
 A simple PDF contains 4 parts:
     - header:
         %PDF-1.7
