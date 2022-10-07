@@ -45,7 +45,7 @@ class obj_Dictionary {
 // class obj_Number {}
 
 class obj_StringObj {
-    STRING_TABLE = {
+    /*STRING_TABLE = {
         "\\n": "\n", // Line Feed (LF)
         "\\r": "\r", // Carriage Return (CR)
         "\\t": "\t", // Horizontal Tab (HT)
@@ -56,11 +56,11 @@ class obj_StringObj {
         "\\\\": "\\", // Backslash
         "\\EOL": "\r\n", // Ignore
         "\\ddd": "", // character code ddd. One, two or three 0-7 digits with overflow ignored. If a digit follows, three octals digits are mandatory.
-    }
+    }*/
     value: string
     
-    constructor () {
-
+    constructor (value: string) {
+        this.value = value;
     }
 }
 
@@ -70,6 +70,27 @@ class obj_Boolean {}
 
 class obj_NullObj {}
 
+/**
+ * Returns all Objects in the given file
+ */
+const getAllObjects = (data: Buffer): obj[] => {
+    // Find start positions of all obj tags
+    const pattern: Buffer = Buffer.from("obj\n");
+    let temp: Buffer = Buffer.alloc(pattern.byteLength);
+    let r = pattern.byteLength;
+    let pos: Number[] = [];
+    for (var l = 0; r < data.byteLength + 1; l++) {
+        // If 'obj' pattern matched
+        if (pattern.equals(temp)) {
+            pos.push(l);
+        }
+        data.copy(temp, 0, l, r);
+        r++;
+    }
+    
+    return [new obj];
+}
+
 export { 
     obj,
     obj_IndirectRef,
@@ -78,5 +99,6 @@ export {
     obj_StringObj,
     obj_Stream,
     obj_Boolean,
-    obj_NullObj
+    obj_NullObj,
+    getAllObjects
 }

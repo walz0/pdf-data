@@ -2,6 +2,8 @@ COS - Carousel Object System
 
 EOL - CR + LF = 0x1310
 
+each 'obj' declaration is followed by LF not CRLF
+
 A simple PDF contains 4 parts:
     - header:
         %PDF-1.7
