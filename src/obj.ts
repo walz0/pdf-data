@@ -71,19 +71,38 @@ class obj_NullObj {}
  * Returns all objects in the PDF file
  */
 const getAllObjects = (data: Buffer): obj[] => {
-    let output: obj[] = []; // Return array
     const p_obj: Buffer = Buffer.from(" obj\n");
     const p_endobj: Buffer = Buffer.from("endobj\n");
-    // Sliding window for pattern matching
+
     let temp: Buffer = Buffer.alloc(p_endobj.byteLength);
-    let r = temp.byteLength; // Right pointer
-    let startPos: number[] = [];
-    let endPos: number[] = [];
+    let r = temp.byteLength;
+    let [startPos, endPos]: number[][] = [[], []];
+    let rawContent: Buffer[] = [];
+    let objects: obj[] = [];
+
+    // True when reading the contents of an object
+    let reading = false;
+    let readBuffer: Buffer = Buffer.alloc(0);
+
     for (var l = 0; r < data.byteLength + 1; l++) {
-        if (p_obj.compare(temp, 0, p_obj.byteLength) === 0)
+        // Check for pattern matches
+        if (p_obj.compare(temp, 0, p_obj.byteLength) === 0) {
+            reading = true;
             startPos.push(l);
-        if (p_endobj.compare(temp, 0, p_endobj.byteLength) === 0)
+        }
+        if (p_endobj.compare(temp, 0, p_endobj.byteLength) === 0) {
+            reading = false;
+            // Push content of current object and clear buffer
+            rawContent.push(readBuffer);
+            readBuffer = Buffer.alloc(0);
             endPos.push(l);
+        }
+        // Read raw contents of object
+        if (reading === true) {
+            const newByte = Buffer.alloc(1);
+            newByte.writeUInt8(data[l], 0);
+            readBuffer = Buffer.concat([readBuffer, newByte]);
+        }
         // Copy current window into temp
         data.copy(temp, 0, l, r);
         r++;
@@ -96,10 +115,12 @@ const getAllObjects = (data: Buffer): obj[] => {
     for (var i = 0; i < objCount; i++) {
         const objNumber = parseInt(String.fromCharCode(data[startPos[i] - 4]));
         const revNumber = parseInt(String.fromCharCode(data[startPos[i] - 2]));
-        output.push(new obj(objNumber, revNumber));
+        const content = rawContent[i];
+        console.log(content.toString());
+        objects.push(new obj(objNumber, revNumber));
     }
     
-    return output;
+    return objects;
 }
 
 export { 
