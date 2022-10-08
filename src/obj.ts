@@ -115,7 +115,7 @@ const getAllObjects = (data: Buffer): obj[] => {
     for (var i = 0; i < objCount; i++) {
         const objNumber = parseInt(String.fromCharCode(data[startPos[i] - 4]));
         const revNumber = parseInt(String.fromCharCode(data[startPos[i] - 2]));
-        const content = rawContent[i];
+        const content: Buffer = rawContent[i].slice(p_obj.byteLength - 1, rawContent[i].byteLength - 1);
         console.log(content.toString());
         objects.push(new obj(objNumber, revNumber));
     }
