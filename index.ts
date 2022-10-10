@@ -4,4 +4,5 @@ import { getAllObjects } from "./src/obj";
 
 let data = fs.readFileSync("./media/Advanced usage.pdf");
 
-console.log(getTable(data));
+const xref = getTable(data);
+console.log(xref);

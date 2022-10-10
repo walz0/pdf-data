@@ -4,6 +4,11 @@ const EOF = Buffer.from("%%EOF");
 const XREF = Buffer.from("xref");
 const TRAILER = Buffer.from("trailer\n");
 
+/**
+ * Cross-reference table of a PDF file
+ * @constructor
+ * @param {Reference} entries - List of object References
+ */
 class XREFTable {
     entries: Reference[];
     constructor(entries: Reference[]) {
@@ -11,6 +16,13 @@ class XREFTable {
     }
 }
 
+/**
+ * A reference to an object within a PDF file
+ * @constructor
+ * @param {number} offset - Byte offset pointing to the start of the object
+ * @param {number} revNumber - Revision number of the object
+ * @param {boolean} free - Object use state (Free / In use)
+ */
 class Reference { 
     offset: number;
     revNumber: number;
@@ -24,8 +36,8 @@ class Reference {
 
 /**
  * Returns the XREF table of a given PDF file 
- * @param data Source buffer
- * @returns 
+ * @param {Buffer} data Source buffer
+ * @returns {XREFTable} XREF Table
  */
 const getTable = function (data: Buffer): XREFTable {
     // Get offset for end of xref offset value
