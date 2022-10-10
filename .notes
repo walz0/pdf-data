@@ -1,6 +1,6 @@
 COS - Carousel Object System
 
-EOL - CR + LF = 0x1310
+EOL - CR + LF = 0x0d0a
 
 each 'obj' declaration is followed by LF not CRLF
 
@@ -24,6 +24,7 @@ A simple PDF contains 4 parts:
         0000000173 00000 n 
         0000000301 00000 n 
         0000000380 00000 n 
+        (offset)   (rev) (free / in use)
     - trailer:
         trailer
         <<

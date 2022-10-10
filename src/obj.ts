@@ -67,6 +67,11 @@ class obj_Boolean {}
 
 class obj_NullObj {}
 
+const parseRawObject = (data: Buffer): obj[] => {
+
+    return [];
+}
+
 /**
  * Returns all objects in the PDF file
  */
@@ -116,10 +121,13 @@ const getAllObjects = (data: Buffer): obj[] => {
         const objNumber = parseInt(String.fromCharCode(data[startPos[i] - 4]));
         const revNumber = parseInt(String.fromCharCode(data[startPos[i] - 2]));
         const content: Buffer = rawContent[i].slice(p_obj.byteLength - 1, rawContent[i].byteLength - 1);
-        console.log(content.toString());
+        /**
+         * Parse content into objects
+         */
+
         objects.push(new obj(objNumber, revNumber));
     }
-    
+
     return objects;
 }
 

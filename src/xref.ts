@@ -1,40 +1,67 @@
-const XREF = Buffer.from("xref\n", "utf8")
-const TRAILER = Buffer.from("trailer\n", "utf8")
+import { findByte } from "./util";
+
+const EOF = Buffer.from("%%EOF");
+const XREF = Buffer.from("xref");
+const TRAILER = Buffer.from("trailer\n");
 
 class XREFTable {
-    entries: Reference[]
+    entries: Reference[];
     constructor(entries: Reference[]) {
-        this.entries = entries
+        this.entries = entries;
     }
 }
 
 class Reference { 
-    data: Buffer
-    constructor(data: Buffer) {
-        this.data = data
+    offset: number;
+    revNumber: number;
+    free: boolean;
+    constructor(offset: number, revNumber: number, free: boolean) {
+        this.offset = offset;
+        this.revNumber = revNumber;
+        this.free = free;
     }
 }
 
-const getTable = function (buffer: Buffer): XREFTable {
-    let start = buffer.indexOf(XREF) + XREF.length // start of xref table
-    console.debug("xref table start", start)
-    let lines: Buffer[] = []
-    for (var i = start; i < buffer.length; i++) {
-        // detect end of xref table
-        if (i >= TRAILER.length) {
-            let slice: Buffer = buffer.slice(i - TRAILER.length, i)
-            if (Buffer.compare(slice, TRAILER) == 0) {
-                console.log("xref table end", i)
-                break
-            }
+/**
+ * Returns the XREF table of a given PDF file 
+ * @param data Source buffer
+ * @returns 
+ */
+const getTable = function (data: Buffer): XREFTable {
+    // Get offset for end of xref offset value
+    const endOffset = (data.byteLength - 1) - EOF.byteLength - 1;
+    let offsetString: string = "";
+    for (var i = endOffset; i > 0; i--) {
+        // Check for LF (beginning of offset number)
+        if (data[i] == 0x0a) {
+            break;
         }
-        // detecting the end of each section label
-        if (buffer[i] == 0x0a) {
-            lines.push(buffer.slice(start, i))
-            start = i
-        }
+        offsetString += parseInt(String.fromCharCode(data[i]));
     }
-    return new XREFTable([])
+    // Offset to the start the xref table
+    const offset: number = parseInt(offsetString.split("").reverse().join("")) + XREF.byteLength + 1;
+    // Offset to the start of obj data
+    const tableStart: number = findByte(data, 0x0a, offset) + 1;
+    // Number of objects in XREF table
+    const tableLength: number = parseInt(
+        data.slice(offset, tableStart - 1).toString().split(" ")[1]
+        );
+    // Length of XREF entry in bytes
+    const LINE_LENGTH = 20;
+    // Parse table entries into Reference objects
+    let entries: Reference[] = [];
+    for (var i = 0; i < tableLength; i++) {
+        const items = data.slice(
+                tableStart+(LINE_LENGTH * i),
+                (tableStart + (LINE_LENGTH*i) + LINE_LENGTH) - 2 // -2 for 0a and 20
+            ).toString().split(" ");
+        const idx = parseInt(items[0]); // Offset
+        const rev = parseInt(items[1]); // Revision number
+        const free = (items[2] == "f") ? true : false; // Free / I(n) use
+        entries.push(new Reference(idx, rev, free));
+    }
+
+    return new XREFTable(entries);
 }
 
 export { getTable, XREFTable, Reference }
