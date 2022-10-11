@@ -9,7 +9,7 @@ const TRAILER = Buffer.from("trailer\n");
  * @constructor
  * @param {Reference} entries List of object References
  */
-class XREFTable {
+class XRefTable {
     entries: Reference[];
     constructor(entries: Reference[]) {
         this.entries = entries;
@@ -35,11 +35,22 @@ class Reference {
 }
 
 /**
- * Returns the XREF table of a given PDF file 
- * @param {Buffer} data Source buffer
- * @returns {XREFTable} XREF Table
+ * Returns the XRef table of a given PDF file if it
+ * is contained in an object stream
+ * @param data Source Buffer
+ * @returns {XRefTable} XRef Table
  */
-const getTable = function (data: Buffer): XREFTable {
+const getTableFromStream = (data: Buffer): XRefTable => {
+    return new XRefTable([]);
+}
+
+/**
+ * Returns the XREF table of a given PDF file if it
+ * exists and is not contained in an object stream
+ * @param {Buffer} data Source buffer
+ * @returns {XRefTable} XRef Table
+ */
+const getTable = (data: Buffer): XRefTable => {
     // Get offset for end of xref offset value
     const endOffset = findPattern(data, EOF, data.byteLength - 1, true) - EOF.byteLength - 2;
     let offsetString: string = "";
@@ -52,6 +63,7 @@ const getTable = function (data: Buffer): XREFTable {
     }
     // Offset to the start the xref table
     const offset: number = parseInt(offsetString.split("").reverse().join("")) + XREF.byteLength + 1;
+    console.log(offset);
     // console.log(data.slice(offset, offset + 800).toString());
     // Offset to the start of obj data
     const tableStart: number = findByte(data, 0x0a, offset) + 1;
@@ -74,7 +86,7 @@ const getTable = function (data: Buffer): XREFTable {
         entries.push(new Reference(idx, rev, free));
     }
 
-    return new XREFTable(entries);
+    return new XRefTable(entries);
 }
 
-export { getTable, XREFTable, Reference }
+export { getTable, XRefTable, Reference }

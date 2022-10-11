@@ -75,15 +75,14 @@ class obj_NullObj {}
  * @param offset Object offset in data buffer
  * @returns {obj} obj
  */
-const getObject = (data: Buffer, offset: number): obj | undefined => {
+const getObject = (data: Buffer, offset: number): Buffer => {
     const header = data.slice(offset, findByte(data, 0x0a, offset)).toString();
     const [objNumber, revNumber]: number[] = header.split(" ").slice(0, 2).map(x => parseInt(x))
-    const endIndex = findPattern(data, Buffer.from("endobj\n"), offset);
+    const endIndex = findPattern(data, Buffer.from("endobj\n"), offset, false);
     // console.log("endIndex", endIndex, "offset", offset);
     // console.log(data.slice(offset, endIndex).toString());
-    const rawObject = data.slice(offset, endIndex).toString();
-    console.log(rawObject);
-    return undefined;
+    const rawObject = data.slice(offset, endIndex);
+    return rawObject;
 }
 
 /**
