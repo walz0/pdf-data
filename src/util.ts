@@ -19,15 +19,28 @@ const findByte = (src: Buffer, byte: number, startIndex: number) : number => {
  * @param src Source buffer
  * @param pattern Search query
  * @param startIndex Starting index in src buffer
+ * @param reverse Walk backward instead of forward
  * @returns 
  */
-const findPattern = (src: Buffer, pattern: number, startIndex: number) : number => {
-    for (let i = startIndex; i < src.byteLength; i++) {
-        if (src[i] == pattern) {
-            return i;
+const findPattern = (src: Buffer, pattern: Buffer, startIndex: number, reverse?: boolean) : number => {
+    if (reverse) {
+        for (let i = startIndex + 1; i > pattern.byteLength; i--) {
+            if (pattern.compare(src.slice(i-pattern.byteLength, i), 0, pattern.byteLength) === 0) {
+                return i;
+            }
+        }
+    }
+    else {
+        for (let i = startIndex; i < src.byteLength - pattern.byteLength; i++) {
+            if (pattern.compare(src.slice(i, i+pattern.byteLength), 0, pattern.byteLength) === 0) {
+                return i;
+            }
         }
     }
     return 0;
 }
 
-export { findByte }
+export {
+    findByte,
+    findPattern
+}

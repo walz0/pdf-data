@@ -1,4 +1,4 @@
-import { findByte } from "./util";
+import { findByte, findPattern } from "./util";
 
 const EOF = Buffer.from("%%EOF");
 const XREF = Buffer.from("xref");
@@ -41,7 +41,7 @@ class Reference {
  */
 const getTable = function (data: Buffer): XREFTable {
     // Get offset for end of xref offset value
-    const endOffset = (data.byteLength - 1) - EOF.byteLength - 1;
+    const endOffset = findPattern(data, EOF, data.byteLength - 1, true) - EOF.byteLength - 2;
     let offsetString: string = "";
     for (var i = endOffset; i > 0; i--) {
         // Check for LF (beginning of offset number)
@@ -52,6 +52,7 @@ const getTable = function (data: Buffer): XREFTable {
     }
     // Offset to the start the xref table
     const offset: number = parseInt(offsetString.split("").reverse().join("")) + XREF.byteLength + 1;
+    // console.log(data.slice(offset, offset + 800).toString());
     // Offset to the start of obj data
     const tableStart: number = findByte(data, 0x0a, offset) + 1;
     // Number of objects in XREF table

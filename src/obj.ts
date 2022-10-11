@@ -1,4 +1,4 @@
-import { findByte } from "./util";
+import { findByte, findPattern } from "./util";
 
 class obj {
     public objNumber: number; // Object Number (positive integer)
@@ -78,7 +78,11 @@ class obj_NullObj {}
 const getObject = (data: Buffer, offset: number): obj | undefined => {
     const header = data.slice(offset, findByte(data, 0x0a, offset)).toString();
     const [objNumber, revNumber]: number[] = header.split(" ").slice(0, 2).map(x => parseInt(x))
-    const rawObject = data.slice(offset, offset + 50).toString();
+    const endIndex = findPattern(data, Buffer.from("endobj\n"), offset);
+    // console.log("endIndex", endIndex, "offset", offset);
+    // console.log(data.slice(offset, endIndex).toString());
+    const rawObject = data.slice(offset, endIndex).toString();
+    console.log(rawObject);
     return undefined;
 }
 
