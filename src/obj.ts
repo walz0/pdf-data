@@ -1,7 +1,9 @@
+import { findByte } from "./util";
+
 class obj {
     public objNumber: number; // Object Number (positive integer)
     public revNumber: number; // Revision / Generation Number (non-negative integer)
-    public ref: obj | null = null; // Object Reference
+    public ref: obj | undefined = undefined; // Object Reference
     constructor (objNumber: number, revNumber: number) {
         this.objNumber = objNumber;
         this.revNumber = revNumber;
@@ -67,9 +69,17 @@ class obj_Boolean {}
 
 class obj_NullObj {}
 
-const parseRawObject = (data: Buffer): obj[] => {
-
-    return [];
+/**
+ * Returns the obj at a given offset
+ * @param data Source data buffer
+ * @param offset Object offset in data buffer
+ * @returns {obj} obj
+ */
+const getObject = (data: Buffer, offset: number): obj | undefined => {
+    const header = data.slice(offset, findByte(data, 0x0a, offset)).toString();
+    const [objNumber, revNumber]: number[] = header.split(" ").slice(0, 2).map(x => parseInt(x))
+    const rawObject = data.slice(offset, offset + 50).toString();
+    return undefined;
 }
 
 /**
@@ -139,5 +149,6 @@ export {
     obj_Stream,
     obj_Boolean,
     obj_NullObj,
-    getAllObjects
+    getAllObjects,
+    getObject
 }
