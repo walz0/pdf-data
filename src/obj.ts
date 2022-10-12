@@ -1,3 +1,4 @@
+import zlib from "zlib";
 import { findByte, findPattern } from "./util";
 
 class obj {
@@ -56,7 +57,7 @@ class obj_StringObj {
         "\\EOL": "\r\n", // Ignore
         "\\ddd": "", // character code ddd. One, two or three 0-7 digits with overflow ignored. If a digit follows, three octals digits are mandatory.
     }*/
-    value: string
+    value: string;
     
     constructor (value: string) {
         this.value = value;
@@ -64,7 +65,27 @@ class obj_StringObj {
 }
 
 class obj_Stream {
+    data: Buffer;
 
+    constructor(data: Buffer) {
+        this.data = data;
+    }
+
+    /**
+     * Returns the decompressed data stream
+     * @returns {Buffer}
+     */
+    public inflate(): Buffer {
+        return zlib.inflateSync(this.data);
+    }
+
+    /**
+     * Returns the decompressed data stream as a string 
+     * @returns {string}
+     */
+    public toString(): string {
+        return this.inflate().toString();
+    }
 }
 
 class obj_Boolean {}
