@@ -63,7 +63,9 @@ class obj_StringObj {
     }
 }
 
-class obj_Stream {}
+class obj_Stream {
+
+}
 
 class obj_Boolean {}
 
